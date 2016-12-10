@@ -5,3 +5,4 @@ authors = ["Emil Segerbäck <emilsegerback@gmail.com>"]
 
 [dependencies]
 sfml = "0.11.2"
+specs = "0.7.0"

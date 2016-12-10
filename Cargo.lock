@@ -3,7 +3,13 @@ name = "duck_duck_swim"
 version = "0.1.0"
 dependencies = [
  "sfml 0.11.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "specs 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
+
+[[package]]
+name = "atom"
+version = "0.3.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "bitflags"
@@ -60,9 +66,37 @@ dependencies = [
 ]
 
 [[package]]
+name = "fnv"
+version = "1.0.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "kernel32-sys"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "winapi 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "winapi-build 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "libc"
 version = "0.2.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "mopa"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "pulse"
+version = "0.5.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "atom 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "time 0.1.35 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
 [[package]]
 name = "sfml"
@@ -84,13 +118,67 @@ name = "sfml-types"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
+[[package]]
+name = "specs"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "atom 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "fnv 1.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mopa 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "pulse 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "threadpool 1.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tuple_utils 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "threadpool"
+version = "1.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "time"
+version = "0.1.35"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "kernel32-sys 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libc 0.2.18 (registry+https://github.com/rust-lang/crates.io-index)",
+ "winapi 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "tuple_utils"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "winapi"
+version = "0.2.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "winapi-build"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
 [metadata]
+"checksum atom 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)" = "4cd7b80cba09d9c6679f5ac66af2e5eb9c17fa1b914f142d690b069ba51eacaf"
 "checksum bitflags 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "4f67931368edf3a9a51d29886d245f1c3db2f1ef0dcc9e35ff70341b78c10d23"
 "checksum csfml-audio-sys 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "f03e143b2470cbe317a57c17661f315f9565e4187ea85335ad7839dc57aa6bd0"
 "checksum csfml-graphics-sys 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "72e888a8cc664674eb47271d1042fc2df09a03fd7eb1585d691f0503dce19c55"
 "checksum csfml-network-sys 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "bd11432924734b45b6478ee384ad84591274a9f277997771ca2cd57ebf03940e"
 "checksum csfml-system-sys 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "f613309f92bca2549e066286580d0ab69809afba4675c3fc0c7943409c77206d"
 "checksum csfml-window-sys 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "f74f961b69749ca7e62ad66b7959ab62f63847826d8cb3a068250fcbd1c3fbcf"
+"checksum fnv 1.0.5 (registry+https://github.com/rust-lang/crates.io-index)" = "6cc484842f1e2884faf56f529f960cc12ad8c71ce96cc7abba0a067c98fee344"
+"checksum kernel32-sys 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "7507624b29483431c0ba2d82aece8ca6cdba9382bff4ddd0f7490560c056098d"
 "checksum libc 0.2.18 (registry+https://github.com/rust-lang/crates.io-index)" = "a51822fc847e7a8101514d1d44e354ba2ffa7d4c194dcab48870740e327cac70"
+"checksum mopa 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "a785740271256c230f57462d3b83e52f998433a7062fc18f96d5999474a9f915"
+"checksum pulse 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)" = "655612b6c8d96a8a02f331fe296cb4f925b68e87c1d195544675abca2d9b9af0"
 "checksum sfml 0.11.2 (registry+https://github.com/rust-lang/crates.io-index)" = "796ac61674669d1cbc9a444af283aa622c8bf018692a9ec4dc39ff9445615469"
 "checksum sfml-types 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "d81c513af1beb0d4105ac8269dc0f8405d0e1bbf0d589af1b882fb515d7c5758"
+"checksum specs 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "0f7c8568d52ffdf8f125a597853dad823bb8463dd959a0fcf9c3472d896de906"
+"checksum threadpool 1.3.2 (registry+https://github.com/rust-lang/crates.io-index)" = "59f6d3eff89920113dac9db44dde461d71d01e88a5b57b258a0466c32b5d7fe1"
+"checksum time 0.1.35 (registry+https://github.com/rust-lang/crates.io-index)" = "3c7ec6d62a20df54e07ab3b78b9a3932972f4b7981de295563686849eb3989af"
+"checksum tuple_utils 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "cbfecd7bb8f0a3e96b3b31c46af2677a55a588767c0091f484601424fcb20e7e"
+"checksum winapi 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)" = "167dc9d6949a9b857f3451275e911c3f44255842c1f7a76f33c55103a909087a"
+"checksum winapi-build 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "2d315eee3b34aca4797b2da6b13ed88266e6d612562a0c46390af8299fc699bc"
