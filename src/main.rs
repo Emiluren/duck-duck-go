@@ -1,87 +1,123 @@
-extern crate sfml;
+#[macro_use]
+extern crate gfx;
+extern crate gfx_window_glutin;
+extern crate glutin;
+extern crate pegasus;
 extern crate specs;
-extern crate nalgebra as na;
 
-use std::sync::{Arc, RwLock, Mutex};
-use std::sync::mpsc::channel;
-use sfml::graphics::{RenderWindow, Color, RenderTarget, Sprite, Texture};
-use sfml::window::{VideoMode, ContextSettings, event, window_style};
-use na::Vector2;
+pub type ColorFormat = gfx::format::Srgba8;
+pub type DepthFormat = gfx::format::DepthStencil;
 
-#[derive(Clone, Copy)]
-struct Transform {
-    pos: Vector2<f64>,
+gfx_defines! {
+    vertex Vertex {
+        pos: [f32; 2] = "a_Pos",
+        color: [f32; 3] = "a_Color",
+    }
+
+    pipeline pipe {
+        pos: gfx::Global<[f32; 2]> = "u_Pos",
+        vbuf: gfx::VertexBuffer<Vertex> = (),
+        out: gfx::RenderTarget<ColorFormat> = "Target0",
+    }
 }
 
-impl specs::Component for Transform {
-    type Storage = specs::VecStorage<Transform>;
+const TRIANGLE: [Vertex; 3] = [
+    Vertex { pos: [-0.5, -0.5], color: [1.0, 0.0, 0.0] },
+    Vertex { pos: [ 0.5, -0.5], color: [0.0, 1.0, 0.0] },
+    Vertex { pos: [ 0.0,  0.5], color: [0.0, 0.0, 1.0] },
+];
+
+const CODE_VS: &'static[u8] = include_bytes!("shader/dot.vert");
+const CODE_FS: &'static[u8] = include_bytes!("shader/dot.frag");
+
+struct Drawable([f32; 2]);
+
+impl specs::Component for Drawable {
+    type Storage = specs::VecStorage<Drawable>;
 }
 
-type SpriteRef = usize;
+struct MoveSystem;
 
-#[derive(Clone, Copy)]
-struct Renderable {
-    spriteRef: SpriteRef,
+impl specs::System<pegasus::Delta> for MoveSystem {
+    fn run(&mut self, arg: specs::RunArg, t: pegasus::Delta) {
+        use specs::Join;
+        let mut vis = arg.fetch(|w| w.write::<Drawable>());
+        let angle = t;
+        let (c, s) = (angle.cos(), angle.sin());
+        for &mut Drawable(ref mut p) in (&mut vis).iter() {
+            *p = [p[0]*c - p[1]*s, p[0]*s + p[1]*c];
+        }
+    }
 }
 
-impl specs::Component for Renderable {
-    type Storage = specs::VecStorage<Renderable>;
+struct Init;
+
+impl pegasus::Init for Init {
+    type Shell = ();
+    fn start(self, plan: &mut pegasus::Planner) -> () {
+        plan.add_system(MoveSystem, "move", 20);
+        let mut w = plan.mut_world();
+        use std::f32::consts::PI;
+        let num = 200;
+        for i in 0..num {
+            let t = i as f32 / (num as f32);
+            let angle = t * 7.0 * PI;
+            let pos = [t * angle.cos(), t * angle.sin()];
+            w.create_now().with(Drawable(pos));
+        }
+    }
 }
 
-#[derive(Clone, Copy)]
-struct RenderData {
-    renderable: Renderable,
-    transform: Transform,
+struct Painter<R: gfx::Resources> {
+    slice: gfx::Slice<R>,
+    pso: gfx::PipelineState<R, pipe::Meta>,
+    data: pipe::Data<R>,
+}
+
+impl<R: gfx::Resources> pegasus::Painter<R> for Painter<R> {
+    type Visual = Drawable;
+    fn draw<'a, I, C>(&mut self, iter: I, enc: &mut gfx::Encoder<R, C>) where
+        I: Iterator<Item = &'a Self::Visual>,
+        C: gfx::CommandBuffer<R>
+    {
+        enc.clear(&self.data.out, [0.1, 0.2, 0.3, 1.0]);
+        for &Drawable(pos) in iter {
+            self.data.pos = pos.into();
+            enc.draw(&self.slice, &self.pso, &self.data);
+        }
+    }
 }
 
 fn main() {
-    let game_width = 800;
-    let game_height = 600;
+    use gfx::traits::FactoryExt;
 
-    let mut window = RenderWindow::new(VideoMode::new_init(game_width, game_height, 32),
-                                       "Duck duck swim",
-                                       window_style::CLOSE,
-                                       &ContextSettings::default())
-        .expect("Failed to create window.");
+    let builder = glutin::WindowBuilder::new()
+        .with_title("Hello my friend :)".to_string())
+        .with_dimensions(800, 600)
+        .with_vsync();
+    let (window, device, mut factory, main_color, _main_depth) =
+        gfx_window_glutin::init::<ColorFormat, DepthFormat>(builder);
 
-    let duck_texture = Texture::new_from_file("assets/duck1.png").unwrap();
-    let mut duck_sprite = Sprite::new_with_texture(&duck_texture).unwrap();
+    let (vertex_buffer, slice) = factory.create_vertex_buffer_with_slice(
+        &TRIANGLE, ()
+    );
 
-    let mut planner = {
-        let mut w = specs::World::new();
+    let pso = factory.create_pipeline_simple(
+        CODE_VS, CODE_FS, pipe::new()
+    ).unwrap();
 
-        w.register::<Transform>();
-        w.register::<Renderable>();
-
-        let transform = Transform { pos: Vector2::new(0.0, 0.0) };
-        let renderable = Renderable { spriteRef: 0 };
-        w.create_now().with(transform).with(renderable).build();
-
-        specs::Planner::<()>::new(w, 4)
+    let init = Init;
+    let painter = Painter {
+        slice: slice,
+        pso: pso,
+        data: pipe::Data {
+            pos: [0.0, 0.0].into(),
+            vbuf: vertex_buffer,
+            out: main_color,
+        }
     };
 
-    let (tx, rx) = channel();
-    while window.is_open() {
-        for event in window.events() {
-            match event {
-                event::Closed => window.close(),
-                _ => {}
-            }
-        }
-        window.clear(&Color::new_rgb(0, 0, 0));
-        planner.run0w2r(|transform: &Transform, renderable: &Renderable| {
-            let thread_tx = tx.clone();
-            tx.send(RenderData {
-                transform: *transform,
-                renderable: *renderable,
-            });
-        });
-        planner.wait();
-
-        while let Ok(cmd) = rx.try_recv() {
-            window.draw(&duck_sprite);
-        }
-
-        window.display();
-    }
+    pegasus::fly(window, device,
+                 || factory.create_command_buffer(),
+                 init, painter, ());
 }

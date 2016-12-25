@@ -4,5 +4,9 @@ version = "0.1.0"
 authors = ["Emil Segerbäck <emilsegerback@gmail.com>"]
 
 [dependencies]
-sfml = "0.11.2"
-specs = "0.7.0"
+gfx = "0.12.*"
+specs = "0.7.*"
+nalgebra = "0.9.*"
+pegasus = "0.2.*"
+glutin = "0.6.*"
+gfx_window_glutin = "0.12.*"
